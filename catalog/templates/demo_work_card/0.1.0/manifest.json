@@ -1,0 +1,13 @@
+{
+  "id": "demo.work_card",
+  "version": "0.1.0",
+  "title": "Учебная карточка работ — не нормативная форма",
+  "status": "draft",
+  "sources": [],
+  "fields": [
+    {"name": "object", "label": "Объект", "source": "project.title", "required": true},
+    {"name": "address", "label": "Адрес", "source": "project.address", "required": true},
+    {"name": "work", "label": "Работы", "source": "work.title", "required": true},
+    {"name": "drawing", "label": "Шифр и листы РД", "source": "work.drawing", "required": true}
+  ]
+}
