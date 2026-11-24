@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 import flet as ft
 from id_platform.templates import load_catalog, prefill, TemplateError
+from id_platform.docx_export import export_docx
 
 ROOT = Path(__file__).resolve().parent
 
@@ -56,7 +57,7 @@ def main(page):
         def handler(event):
             try:
                 action()
-            except (OSError, ValueError, sqlite3.Error) as error:
+            except (OSError, ValueError, RuntimeError, sqlite3.Error) as error:
                 notice.value = 'Ошибка: ' + str(error)
             page.update()
         return handler
@@ -122,6 +123,15 @@ def main(page):
         show_history()
         notice.value = 'Снимок проекта и черновик сохранены'
 
+    def export_current():
+        if getattr(page, 'web', False):
+            raise ValueError('Этот экспорт предназначен для локального запуска. Скачивание из браузера пока не реализовано.')
+        payload = check()
+        if not (title.value or '').strip():
+            raise ValueError('Введите название объекта')
+        path = export_docx(payload, folder / 'exports')
+        notice.value = 'Черновик DOCX сохранён: ' + str(path)
+
     title.on_change = invalidate
     drafts.on_change = safe(reload_catalog)
     page.add(ft.Column([
@@ -131,6 +141,7 @@ def main(page):
         ft.TextButton('Обновить каталог', on_click=safe(reload_catalog)), catalog, fields,
         ft.TextButton('Предзаполнить и проверить', on_click=safe(check)),
         ft.TextButton('Сохранить снимок проекта и черновик', on_click=safe(save)),
+        ft.TextButton('Экспорт черновика в DOCX', on_click=safe(export_current)),
         preview, ft.Divider(), ft.Text('Сохранённые снимки всех объектов'), history,
     ], expand=True, scroll=ft.ScrollMode.AUTO))
     try:
