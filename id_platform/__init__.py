@@ -1,0 +1,1 @@
+"""Construction documentation platform core."""
